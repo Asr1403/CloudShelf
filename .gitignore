@@ -1,0 +1,74 @@
+
+### Spring Boot ###
+HELP.md
+
+### Maven Build ###
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Maven Wrapper ###
+.mvn/wrapper/maven-wrapper.jar
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### H2 Database ###
+data/
+*.mv.db
+*.trace.db
+*.lock.db
+
+### Environment Variables / Secrets ###
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+### Logs ###
+*.log
+logs/
+
+### Operating System ###
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### Temporary Files ###
+*.tmp
+*.bak
+*.swp
+*~
+
+### Jenkins Local Files ###
+.jenkins/
+jenkins_home/
+
+### Docker Local Files ###
+docker-data/
