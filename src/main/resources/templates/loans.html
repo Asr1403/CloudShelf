@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Issue & Return Books | CloudShelf</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+    <div class="app-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                <span>CloudShelf</span>
+            </div>
+
+            <p class="sidebar-label">MAIN MENU</p>
+
+            <nav class="nav-menu">
+
+                <a th:href="@{/}" class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a th:href="@{/books}" class="nav-link">
+                    <span>▤</span> Books Management
+                </a>
+
+                <a th:href="@{/members}" class="nav-link">
+                    <span>♙</span> Members
+                </a>
+
+                <a th:href="@{/loans}" class="nav-link active">
+                    <span>↗</span> Issue & Return
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>CloudShelf Library</p>
+                <small>Powered by Spring Boot</small>
+            </div>
+
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <header class="topbar">
+
+                <div>
+                    <p class="breadcrumb">CloudShelf / Issue & Return</p>
+
+                    <h1>Issue & Return Books</h1>
+
+                    <p class="subtitle">
+                        Manage borrowing records and track book returns.
+                    </p>
+                </div>
+
+                <div class="topbar-actions">
+                    <span class="admin-badge">Library Admin</span>
+                </div>
+
+            </header>
+
+            <!-- Notifications -->
+            <div class="alert alert-success" th:if="${success}" th:text="${success}">
+            </div>
+
+            <div class="alert alert-error" th:if="${error}" th:text="${error}">
+            </div>
+
+            <!-- Statistics -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">📖</div>
+
+                    <div>
+                        <p class="stat-label">Active Loans</p>
+                        <h2 th:text="${activeLoans}">0</h2>
+                        <small>Books currently issued</small>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">⏰</div>
+
+                    <div>
+                        <p class="stat-label">Overdue Books</p>
+                        <h2 th:text="${overdueLoans}">0</h2>
+                        <small>Books past their due date</small>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon purple">📚</div>
+
+                    <div>
+                        <p class="stat-label">Available Books</p>
+                        <h2 th:text="${#lists.size(availableBooks)}">0</h2>
+                        <small>Ready to be issued</small>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Issue Book Form -->
+            <section class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Issue a Book</h2>
+                        <p>Select an available book and registered member.</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-error" th:if="${#lists.isEmpty(availableBooks)}">
+                    No available books. Add or return a book first.
+                </div>
+
+                <div class="alert alert-error" th:if="${#lists.isEmpty(members)}">
+                    No registered members. Register a member first.
+                </div>
+
+                <form th:action="@{/loans/issue}" method="post">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="bookId">Select Book</label>
+
+                            <select id="bookId" name="bookId" required>
+
+                                <option value="">
+                                    Choose an available book
+                                </option>
+
+                                <option th:each="book : ${availableBooks}" th:value="${book.id}"
+                                    th:text="${book.title + ' — ' + book.author}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="memberId">Select Member</label>
+
+                            <select id="memberId" name="memberId" required>
+
+                                <option value="">
+                                    Choose a registered member
+                                </option>
+
+                                <option th:each="member : ${members}" th:value="${member.id}"
+                                    th:text="${member.name + ' (' + member.email + ')'}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="dueDate">Due Date</label>
+
+                            <input id="dueDate" type="date" name="dueDate" th:value="${defaultDueDate}"
+                                th:attr="min=${today}" required>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        th:disabled="${#lists.isEmpty(availableBooks) or #lists.isEmpty(members)}">
+                        ↗ Issue Book
+                    </button>
+
+                </form>
+
+            </section>
+
+            <!-- Loan Records -->
+            <section class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>CloudShelf Borrowing Records</h2>
+                        <p>Track issued, returned, and overdue books.</p>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Book</th>
+                                <th>Member</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="loan : ${loans}">
+
+                                <td th:text="${loan.id}">1</td>
+
+                                <td>
+                                    <strong th:text="${loan.book.title}">
+                                        Book Title
+                                    </strong>
+                                </td>
+
+                                <td th:text="${loan.member.name}">
+                                    Member Name
+                                </td>
+
+                                <td th:text="${loan.issueDate}">
+                                    2026-11-22
+                                </td>
+
+                                <td th:text="${loan.dueDate}">
+                                    2026-12-06
+                                </td>
+
+                                <td th:text="${loan.returnDate != null ? loan.returnDate : '—'}">
+                                    —
+                                </td>
+
+                                <td>
+
+                                    <span class="status-badge status-returned" th:if="${loan.returnDate != null}">
+                                        Returned
+                                    </span>
+
+                                    <span class="status-badge status-overdue"
+                                        th:if="${loan.returnDate == null and loan.overdue}">
+                                        Overdue
+                                    </span>
+
+                                    <span class="status-badge status-issued"
+                                        th:if="${loan.returnDate == null and !loan.overdue}">
+                                        Issued
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <form th:if="${loan.returnDate == null}"
+                                        th:action="@{/loans/return/{id}(id=${loan.id})}" method="post"
+                                        onsubmit="return confirm('Mark this book as returned?');">
+
+                                        <button type="submit" class="btn btn-success">
+                                            Return
+                                        </button>
+
+                                    </form>
+
+                                    <span th:if="${loan.returnDate != null}" class="muted-text">
+                                        Completed
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(loans)}">
+                                <td colspan="8" class="empty-state">
+                                    No borrowing records yet. Issue your first book!
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <footer class="page-footer">
+                CloudShelf — Smart Library Management System |
+                Git • Maven • Docker • Jenkins
+            </footer>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

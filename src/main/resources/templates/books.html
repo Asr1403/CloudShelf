@@ -4,163 +4,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Manage Books - Online Library</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            background: #f1f5f9;
-            color: #1e293b;
-            font-family: Arial, sans-serif;
-        }
-
-        header {
-            background: #1e293b;
-            color: white;
-            padding: 22px;
-            text-align: center;
-        }
-
-        main {
-            max-width: 1050px;
-            margin: 35px auto;
-            padding: 0 18px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 12px #0001;
-        }
-
-        input {
-            padding: 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            margin: 5px;
-        }
-
-        button,
-        .btn {
-            background: #2563eb;
-            color: white;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .delete {
-            background: #dc2626;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            padding: 13px;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-        }
-
-        th {
-            background: #f8fafc;
-        }
-
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        .error {
-            color: #dc2626;
-        }
-    </style>
+    <title>Books Management | CloudShelf</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
-    <header>
-        <h1>Library Book Management</h1>
-        <p>Add, search, and manage library books</p>
-    </header>
 
-    <main>
-        <a class="btn" href="/">Back to Dashboard</a>
+    <div class="app-layout">
 
-        <section class="panel">
-            <h2>Add New Book</h2>
+        <!-- Sidebar -->
+        <aside class="sidebar">
 
-            <form th:action="@{/books/add}" th:object="${book}" method="post">
-                <input type="text" th:field="*{title}" placeholder="Book Title" required>
-
-                <input type="text" th:field="*{author}" placeholder="Author" required>
-
-                <input type="text" th:field="*{category}" placeholder="Category" required>
-
-                <button type="submit">Add Book</button>
-
-                <p class="error" th:if="${#fields.hasErrors('*')}">
-                    Please enter all required book details.
-                </p>
-            </form>
-        </section>
-
-        <section class="panel">
-            <h2>Available Library Books</h2>
-
-            <form th:action="@{/books}" method="get">
-                <input type="text" name="search" th:value="${search}" placeholder="Search by book title">
-
-                <button type="submit">Search</button>
-                <a class="btn" href="/books">Clear</a>
-            </form>
-
-            <div class="table-wrap">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="b : ${books}">
-                            <td th:text="${b.id}"></td>
-                            <td th:text="${b.title}"></td>
-                            <td th:text="${b.author}"></td>
-                            <td th:text="${b.category}"></td>
-                            <td th:text="${b.available ? 'Available' : 'Issued'}"></td>
-                            <td>
-                                <form th:action="@{/books/delete/{id}(id=${b.id})}" method="post"
-                                    onsubmit="return confirm('Delete this book?')">
-                                    <button class="delete" type="submit">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(books)}">
-                            <td colspan="6">No books found.</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                <span>CloudShelf</span>
             </div>
-        </section>
-    </main>
+
+            <p class="sidebar-label">MAIN MENU</p>
+
+            <nav class="nav-menu">
+
+                <a th:href="@{/}" class="nav-link">
+                    <span>⌂</span> Dashboard
+                </a>
+
+                <a th:href="@{/books}" class="nav-link active">
+                    <span>▤</span> Books Management
+                </a>
+
+                <a th:href="@{/members}" class="nav-link">
+                    <span>♙</span> Members
+                </a>
+
+                <a th:href="@{/loans}" class="nav-link">
+                    <span>↗</span> Issue & Return
+                </a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>CloudShelf Library</p>
+                <small>Powered by Spring Boot</small>
+            </div>
+
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="topbar">
+
+                <div>
+                    <p class="breadcrumb">CloudShelf / Books</p>
+                    <h1>Books Management</h1>
+                    <p class="subtitle">
+                        Organize, search, and manage your CloudShelf collection.
+                    </p>
+                </div>
+
+                <div class="topbar-actions">
+                    <span class="admin-badge">Library Admin</span>
+                </div>
+
+            </header>
+
+            <!-- Notifications -->
+            <div class="alert alert-success" th:if="${success}" th:text="${success}">
+            </div>
+
+            <div class="alert alert-error" th:if="${error}" th:text="${error}">
+            </div>
+
+            <!-- Statistics -->
+            <section class="stats-grid">
+
+                <div class="stat-card">
+
+                    <div class="stat-icon blue">📚</div>
+
+                    <div>
+                        <p class="stat-label">Total Books</p>
+                        <h2 th:text="${totalBooks}">0</h2>
+                        <small>Books in collection</small>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon green">✓</div>
+
+                    <div>
+                        <p class="stat-label">Available Books</p>
+                        <h2 th:text="${availableBooks}">0</h2>
+                        <small>Ready for borrowing</small>
+                    </div>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <div class="stat-icon orange">↗</div>
+
+                    <div>
+                        <p class="stat-label">Issued Books</p>
+                        <h2 th:text="${totalBooks - availableBooks}">0</h2>
+                        <small>Currently unavailable</small>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Add Book -->
+            <section class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Add New Book</h2>
+                        <p>Expand your CloudShelf library collection.</p>
+                    </div>
+                </div>
+
+                <form th:action="@{/books/add}" th:object="${book}" method="post">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="title">Book Title</label>
+
+                            <input id="title" type="text" th:field="*{title}" placeholder="Enter book title" required>
+
+                            <small class="field-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">
+                            </small>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="author">Author</label>
+
+                            <input id="author" type="text" th:field="*{author}" placeholder="Enter author name"
+                                required>
+
+                            <small class="field-error" th:if="${#fields.hasErrors('author')}" th:errors="*{author}">
+                            </small>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="category">Category</label>
+
+                            <input id="category" type="text" th:field="*{category}"
+                                placeholder="e.g. Programming, Fiction" required>
+
+                            <small class="field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        + Add Book
+                    </button>
+
+                </form>
+
+            </section>
+
+            <!-- Book Collection -->
+            <section class="panel">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>CloudShelf Book Collection</h2>
+                        <p>Browse and manage all your books.</p>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <form th:action="@{/books}" method="get" class="search-form">
+
+                    <input type="search" name="search" th:value="${search}" placeholder="Search books by title...">
+
+                    <button type="submit" class="btn btn-primary">
+                        Search
+                    </button>
+
+                    <a th:href="@{/books}" class="btn btn-secondary">
+                        Clear
+                    </a>
+
+                </form>
+
+                <!-- Table -->
+                <div class="table-wrap">
+
+                    <table class="data-table">
+
+                        <thead>
+                            <tr>
+                                <th>Book ID</th>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Category</th>
+                                <th>Availability</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="b : ${books}">
+
+                                <td th:text="${b.id}">1</td>
+
+                                <td>
+                                    <strong th:text="${b.title}">
+                                        Book Title
+                                    </strong>
+                                </td>
+
+                                <td th:text="${b.author}">
+                                    Author Name
+                                </td>
+
+                                <td th:text="${b.category}">
+                                    Category
+                                </td>
+
+                                <td>
+
+                                    <span class="status-badge status-returned" th:if="${b.available}">
+                                        Available
+                                    </span>
+
+                                    <span class="status-badge status-issued" th:unless="${b.available}">
+                                        Issued
+                                    </span>
+
+                                </td>
+
+                                <td>
+
+                                    <form th:action="@{/books/delete/{id}(id=${b.id})}" method="post"
+                                        onsubmit="return confirm('Delete this book? Books with borrowing history cannot be deleted.');">
+
+                                        <button type="submit" class="btn btn-danger">
+                                            Delete
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(books)}">
+                                <td colspan="6" class="empty-state">
+                                    No books found. Add your first book!
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+            <footer class="page-footer">
+                CloudShelf — Smart Library Management System |
+                Git • Maven • Docker • Jenkins
+            </footer>
+
+        </main>
+
+    </div>
+
 </body>
 
 </html>

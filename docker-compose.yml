@@ -1,0 +1,25 @@
+
+services:
+  library-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: online-library:2.0
+
+    container_name: online-library-container
+
+    ports:
+      - "8081:8081"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      LIBRARY_DB_URL: jdbc:h2:file:/app/data/librarydb
+
+    volumes:
+      - library-data:/app/data
+
+    restart: unless-stopped
+
+volumes:
+  library-data:
